@@ -4,17 +4,13 @@ import cors from 'cors';
 import config from './config';
 import AppRes from './types/AppRes';
 import redis from './redis';
-import subscribeClient from './redis/subscribeClient';
-import onPollUpdate from './redis/service/onPollUpdate';
 
 // Create Express server
 const app = express();
 
-// Connect to redis and subscribe to channel
+// Connect to redis
 (async () => {
   await redis.connect();
-  await subscribeClient.connect();
-  await subscribeClient.subscribe(config.channelName, onPollUpdate);
 })();
 
 // Set PORT
