@@ -1,6 +1,7 @@
+import constants from '../../constants';
 import redis from '../index';
 
-const QUEUE_NAME = 'queue:polls';
+const { QUEUE_NAME } = constants;
 
 const popPollQueue = async () => {
   const pollId = await redis.rPop(QUEUE_NAME);
