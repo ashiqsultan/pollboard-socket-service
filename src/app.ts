@@ -3,15 +3,10 @@ import morgan from 'morgan';
 import cors from 'cors';
 import config from './config';
 import AppRes from './types/AppRes';
-import redis from './redis';
 
 // Create Express server
 const app = express();
 
-// Connect to redis
-(async () => {
-  await redis.connect();
-})();
 
 // Set PORT
 app.set('port', config.port);

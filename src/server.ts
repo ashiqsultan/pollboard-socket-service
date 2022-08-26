@@ -1,9 +1,10 @@
 require('dotenv').config();
 const http = require('http');
 const { Server } = require('socket.io');
+import { createAdapter } from '@socket.io/redis-adapter';
 import app from './app';
 import constants from './constants';
-import subscribeClient from './redis/subscribeClient';
+import redis from './redis';
 import popPollQueue from './redis/service/popPollQueue';
 import getPollBox from './redis/service/getPollBox';
 
@@ -33,15 +34,24 @@ io.on('connection', (socket: any) => {
 (async () => {
   const { CHANNEL_NAME } = constants;
   const { POLL_UPDATE } = constants.SOCKET_EVENTS;
+  const subscribeClient = redis.duplicate();
+  await redis.connect();
   await subscribeClient.connect();
   await subscribeClient.subscribe(CHANNEL_NAME, async (message: string) => {
-    console.log({ message });
     const pollId = await popPollQueue();
-    console.log({ pollId });
     const pollBox = await getPollBox(pollId);
     console.log({ pollBox });
     io.to(pollId).emit(POLL_UPDATE, { entityId: pollId, pollBox });
   });
+  /**
+   * Socket io Redis adapter.
+   * https://socket.io/docs/v4/redis-adapter/
+   */
+  // const socketPubClient = redis.duplicate();
+  // const socketSubClient = redis.duplicate();
+  // await socketPubClient.connect();
+  // await socketSubClient.connect();
+  // io.adapter(createAdapter(socketPubClient, socketSubClient));
 })();
 
 server.listen(app.get('port'), () => {
